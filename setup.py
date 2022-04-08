@@ -7,7 +7,7 @@ setup(
     license='MIT',
     description='',
     long_description="",
-    install_requires=['datetime',"os"],
+    install_requires=[],
     url='',
     author='',
     author_email=''
