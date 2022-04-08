@@ -89,6 +89,7 @@ class Metarunner():
                 if not generate_only:
                     stream = os.popen(cmd)
                     output = stream.read()
+                    ids.append(output)
 
             else:
                 cmd = f"cd {self.meterunner_path}; qsub -W depend=afterany:{previous_id} {main_script_path}"

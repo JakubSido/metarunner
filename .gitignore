@@ -1,0 +1,6 @@
+*
+!.gitignore
+!__init__py
+!metarunner.py
+!setup.py
+!requirements.txt
