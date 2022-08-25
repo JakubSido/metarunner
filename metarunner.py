@@ -7,8 +7,11 @@ import random
 import sys
 
 class Metarunner():
-    def __init__(self, shell_template, singularity_template, meterunner_path, python_script="main.py", ):
+    def __init__(self, shell_template, singularity_template, meterunner_path, python_script="main.py", singularity_container=None, project_dir=None):
         self.python_script = python_script
+
+        self.singularity_container=singularity_container
+        self.project_dir=project_dir
 
         self.meterunner_path = meterunner_path
         self.script_paths = os.path.join(meterunner_path, "runs")
@@ -26,7 +29,7 @@ class Metarunner():
 
         args = [cmd, self.python_script] + args
         print(" ".join(args))
-        proc_out = subprocess.run(args)
+        # proc_out = subprocess.run(args)
 
         proc_clamscan = subprocess.Popen(args,
                                          stdout=sys.stdout,
@@ -35,6 +38,8 @@ class Metarunner():
 
         # output = proc_out.stdout.decode("utf-8")
         # print(" ".join(args))
+
+
 
     def run_on_meta(self, config, in_sequence=1, generate_only=False, last_run_ckpts=None, depend_on=None):
 
@@ -67,37 +72,47 @@ class Metarunner():
             with open(singularity_script_path, "w", encoding="utf-8") as in_singularity_fd:
                 in_singularity_fd.write(in_singularity_script)
                 if generate_only:
-                    print(in_singularity_script)
+                    print("script in-singularity was generated")
+                    print(singularity_script_path)
+                    # print(in_singularity_script)
 
             # create main script
             with open(main_script_path, "w", encoding="utf-8") as main_script_fd:
                 main_script_content = self.generate_shell_script(singularity_script_path)
                 main_script_fd.write(main_script_content)
                 if generate_only:
-                    print(main_script_content)
+                    print("main qsub script was generated")
+                    print(main_script_path,"\n")
+                    # print(main_script_content)
 
             st = os.stat(main_script_path)
             os.chmod(main_script_path, st.st_mode | stat.S_IEXEC)
 
             st = os.stat(singularity_script_path)
             os.chmod(singularity_script_path, st.st_mode | stat.S_IEXEC)
+
+            if generate_only:
+                print("\n GENERATE ONLY -- NOT RUNNING")
+                print(f"for interactive run use: \nsingularity run --nv {self.singularity_container}  {singularity_script_path}")
+                continue
+
             print("\n\n")
             output = ""
             if previous_id == 0:
                 cmd = f"cd {self.meterunner_path}; qsub {main_script_path}"
                 print(cmd)
-                if not generate_only:
-                    stream = os.popen(cmd)
-                    output = stream.read()
-                    ids.append(output)
+
+                stream = os.popen(cmd)
+                output = stream.read()
+                ids.append(output)
 
             else:
                 cmd = f"cd {self.meterunner_path}; qsub -W depend=afterany:{previous_id} {main_script_path}"
                 print(cmd)
-                if not generate_only:
-                    stream = os.popen(cmd)
-                    output = stream.read()
-                    ids.append(output)
+
+                stream = os.popen(cmd)
+                output = stream.read()
+                ids.append(output)
 
             print(output, "depending on : ", previous_id)
 
