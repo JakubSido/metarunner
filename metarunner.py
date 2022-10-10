@@ -64,8 +64,17 @@ class Metarunner():
 
             last_run_ckpts = metarunner_save
 
-            singularity_script_path = os.path.join(self.script_paths, f"run-in-singularity_{j}.sh")
-            main_script_path = os.path.join(self.script_paths, f"run-single_{j}.sh")
+
+            rand_suff = ""
+            if not generate_only:
+                rand_suff = f"_{random_seed}"
+
+            run_in_name = f"run-in-singularity_{j}{random_seed}.sh"
+            run_single_name = f"run-single_{j}{random_seed}.sh"
+
+            singularity_script_path = os.path.join(self.script_paths, run_in_name)
+            main_script_path = os.path.join(self.script_paths, run_single_name)
+
 
             # create in-singularity script
             in_singularity_script = self.singularity_template(config)
