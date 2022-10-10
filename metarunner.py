@@ -67,10 +67,10 @@ class Metarunner():
 
             rand_suff = ""
             if not generate_only:
-                rand_suff = f"_{random_seed}"
+                rand_suff = f"_{rand_suff}"
 
-            run_in_name = f"run-in-singularity_{j}{random_seed}.sh"
-            run_single_name = f"run-single_{j}{random_seed}.sh"
+            run_in_name = f"run-in-singularity_{j}{rand_suff}.sh"
+            run_single_name = f"run-single_{j}{rand_suff}.sh"
 
             singularity_script_path = os.path.join(self.script_paths, run_in_name)
             main_script_path = os.path.join(self.script_paths, run_single_name)
