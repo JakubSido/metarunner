@@ -1,4 +1,5 @@
 import datetime
+import itertools
 import os
 import subprocess
 import stat
@@ -19,6 +20,16 @@ class Metarunner():
 
         self.generate_shell_script = shell_template
         self.singularity_template = singularity_template
+
+    @classmethod
+    def grid_config(cls,map_hp_vals):
+        lists = map_hp_vals.values()
+        keys = map_hp_vals.keys()
+        ret = []
+        for config_list_instance in itertools.product(*lists):
+            config_instance = {k: v for k, v in zip(keys, config_list_instance)}
+            ret.append(config_instance)
+        return ret
 
     def dry_run(self, named_args):
         print(named_args)
