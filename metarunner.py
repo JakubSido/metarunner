@@ -67,7 +67,7 @@ class Metarunner():
 
             rand_suff = ""
             if not generate_only:
-                rand_suff = f"_{rand_suff}"
+                rand_suff = f"_{random.randint(100000,999999)}"
 
             run_in_name = f"run-in-singularity_{j}{rand_suff}.sh"
             run_single_name = f"run-single_{j}{rand_suff}.sh"
