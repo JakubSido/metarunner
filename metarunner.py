@@ -80,46 +80,52 @@ class Metarunner():
             if not generate_only:
                 rand_suff = f"_{random.randint(100000,999999)}"
 
-            run_in_name = f"run-in-singularity_{j}{rand_suff}.sh"
-            run_single_name = f"run-single_{j}{rand_suff}.sh"
+            job_sript_name = f"job-script_{j}{rand_suff}.sh"
+            plan_script_name = f"plan-script_{j}{rand_suff}.sh"
 
-            singularity_script_path = os.path.join(self.script_paths, run_in_name)
-            main_script_path = os.path.join(self.script_paths, run_single_name)
+            job_script= os.path.join(self.script_paths, job_sript_name)
+            plan_script = os.path.join(self.script_paths, plan_script_name)
 
 
             # create in-singularity script
             in_singularity_script = self.singularity_template(config)
-            with open(singularity_script_path, "w", encoding="utf-8") as in_singularity_fd:
+            with open(job_script, "w", encoding="utf-8") as in_singularity_fd:
                 in_singularity_fd.write(in_singularity_script)
                 if generate_only:
                     print("script in-singularity was generated")
-                    print(singularity_script_path)
+                    print(job_script)
                     # print(in_singularity_script)
 
             # create main script
-            with open(main_script_path, "w", encoding="utf-8") as main_script_fd:
-                main_script_content = self.generate_shell_script(singularity_script_path)
+            with open(plan_script, "w", encoding="utf-8") as main_script_fd:
+                main_script_content = self.generate_shell_script(job_script)
                 main_script_fd.write(main_script_content)
                 if generate_only:
                     print("main qsub script was generated")
-                    print(main_script_path,"\n")
+                    print(plan_script,"\n")
                     # print(main_script_content)
 
-            st = os.stat(main_script_path)
-            os.chmod(main_script_path, st.st_mode | stat.S_IEXEC)
+            st = os.stat(plan_script)
+            os.chmod(plan_script, st.st_mode | stat.S_IEXEC)
 
-            st = os.stat(singularity_script_path)
-            os.chmod(singularity_script_path, st.st_mode | stat.S_IEXEC)
+            st = os.stat(job_script)
+            os.chmod(job_script, st.st_mode | stat.S_IEXEC)
 
             if generate_only:
                 print("\n GENERATE ONLY -- NOT RUNNING")
-                print(f"for interactive run use: \nsingularity run --nv {self.singularity_container}  {singularity_script_path}")
+                
+                print("for interactive run use:")
+                if self.singularity_container:
+                    print(f"singularity run --nv {self.singularity_container}  {job_script}")
+                else:
+                    print(f"conda activate .... and python {job_script}")
+
                 continue
 
             print("\n\n")
             output = ""
             if previous_id == 0:
-                cmd = f"cd {self.meterunner_path}; qsub {main_script_path}"
+                cmd = f"cd {self.meterunner_path}; qsub {plan_script}"
                 print(cmd)
 
                 stream = os.popen(cmd)
@@ -127,7 +133,7 @@ class Metarunner():
                 ids.append(output)
 
             else:
-                cmd = f"cd {self.meterunner_path}; qsub -W depend=afterany:{previous_id} {main_script_path}"
+                cmd = f"cd {self.meterunner_path}; qsub -W depend=afterany:{previous_id} {plan_script}"
                 print(cmd)
 
                 stream = os.popen(cmd)
