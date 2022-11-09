@@ -70,8 +70,9 @@ class Metarunner():
 
             metarunner_save = os.path.join(self.ckpts_paths, date_time)
             # os.makedirs(metarunner_save, exist_ok=False)
-            config["metarunner_ckpt_dir"] = metarunner_save
-            print(f"planing META TASK .. saving ckpts into {metarunner_save}")
+            if in_sequence > 1:
+                config["metarunner_ckpt_dir"] = metarunner_save
+                print(f"planing META TASK .. saving ckpts into {metarunner_save}")
 
             last_run_ckpts = metarunner_save
 
