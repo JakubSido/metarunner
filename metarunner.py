@@ -7,22 +7,25 @@ import random
 
 import sys
 
-class Metarunner():
-    def __init__(self, shell_template, singularity_template, meterunner_path, python_script="main.py", singularity_container=None, project_dir=None):
-        self.python_script = python_script
 
-        self.singularity_container=singularity_container
-        self.project_dir=project_dir
+class Metarunner():
+    def __init__(self, generate_plan_job_template, generate_run_job_template, meterunner_path, python_script="main.py",
+                 singularity_container=None, project_dir=None, add_seq_number=False):
+        self.python_script = python_script
+        self.add_seq_number = add_seq_number
+
+        self.singularity_container = singularity_container
+        self.project_dir = project_dir
 
         self.meterunner_path = meterunner_path
         self.script_paths = os.path.join(meterunner_path, "runs")
         self.ckpts_paths = os.path.join(meterunner_path, "ckpts")
 
-        self.generate_shell_script = shell_template
-        self.singularity_template = singularity_template
+        self.generate_plan_job_template = generate_plan_job_template
+        self.generate_run_job_template = generate_run_job_template
 
     @classmethod
-    def grid_config(cls,map_hp_vals):
+    def grid_config(cls, map_hp_vals):
         lists = map_hp_vals.values()
         keys = map_hp_vals.keys()
         ret = []
@@ -50,8 +53,6 @@ class Metarunner():
         # output = proc_out.stdout.decode("utf-8")
         # print(" ".join(args))
 
-
-
     def run_on_meta(self, config, in_sequence=1, generate_only=False, last_run_ckpts=None, depend_on=None):
 
         previous_id = 0 if depend_on is None else depend_on
@@ -76,22 +77,23 @@ class Metarunner():
 
             last_run_ckpts = metarunner_save
 
-
             rand_suff = ""
             if not generate_only:
-                rand_suff = f"_{random.randint(100000,999999)}"
+                rand_suff = f"_{random.randint(100000, 999999)}"
 
             job_sript_name = f"job-script_{j}{rand_suff}.sh"
             plan_script_name = f"plan-script_{j}{rand_suff}.sh"
 
-            job_script= os.path.join(self.script_paths, job_sript_name)
+            job_script = os.path.join(self.script_paths, job_sript_name)
             plan_script = os.path.join(self.script_paths, plan_script_name)
 
+            if self.add_seq_number == True:
+                config["metarunner_seq_num"] = in_sequence
 
             # create in-singularity script
-            in_singularity_script = self.singularity_template(config)
+            runinng_script = self.generate_run_job_template(config)
             with open(job_script, "w", encoding="utf-8") as in_singularity_fd:
-                in_singularity_fd.write(in_singularity_script)
+                in_singularity_fd.write(runinng_script)
                 if generate_only:
                     print("script in-singularity was generated")
                     print(job_script)
@@ -99,11 +101,11 @@ class Metarunner():
 
             # create main script
             with open(plan_script, "w", encoding="utf-8") as main_script_fd:
-                main_script_content = self.generate_shell_script(job_script)
-                main_script_fd.write(main_script_content)
+                planning_script = self.generate_plan_job_template(job_script)
+                main_script_fd.write(planning_script)
                 if generate_only:
                     print("main qsub script was generated")
-                    print(plan_script,"\n")
+                    print(plan_script, "\n")
                     # print(main_script_content)
 
             st = os.stat(plan_script)
@@ -114,12 +116,12 @@ class Metarunner():
 
             if generate_only:
                 print("\n GENERATE ONLY -- NOT RUNNING")
-                
+
                 print("for interactive run use:")
                 if self.singularity_container:
                     print(f"singularity run --nv {self.singularity_container}  {job_script}")
                 else:
-                    print(f"conda activate .... and python {job_script}")
+                    print(f"conda activate .... and run: {job_script}")
 
                 continue
 
@@ -146,5 +148,3 @@ class Metarunner():
             # m = JOB_ID_RE.match(output)
             previous_id = output.strip()  # int(m.group())
         print("-------------------\n" + "".join(ids))
-
-
