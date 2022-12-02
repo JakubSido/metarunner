@@ -1,4 +1,6 @@
 *
+!examples*
+!examples/*
 !.gitignore
 !__init__py
 !metarunner.py
