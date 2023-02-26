@@ -53,9 +53,17 @@ class Metarunner():
         # output = proc_out.stdout.decode("utf-8")
         # print(" ".join(args))
 
-    def run_on_meta(self, config, in_sequence=1, generate_only=False, last_run_ckpts=None, depend_on=None):
+    def run_on_meta(
+        self, config, 
+        run_job_kwargs = None, 
+        plan_job_kwargs = None, 
+        in_sequence=1, 
+        generate_only=False, 
+        last_run_ckpts=None, 
+        depend_on=None):
 
         previous_id = 0 if depend_on is None else depend_on
+        run_job_kwargs, plan_job_kwargs = run_job_kwargs or {}, plan_job_kwargs or {}
 
         os.makedirs(self.script_paths, exist_ok=True)
         ids = []
@@ -91,7 +99,7 @@ class Metarunner():
                 config["metarunner_seq_num"] = in_sequence
 
             # create in-singularity script
-            runinng_script = self.generate_run_job_template(config)
+            runinng_script = self.generate_run_job_template(config, **run_job_kwargs)
             with open(job_script, "w", encoding="utf-8") as in_singularity_fd:
                 in_singularity_fd.write(runinng_script)
                 if generate_only:
@@ -101,7 +109,7 @@ class Metarunner():
 
             # create main script
             with open(plan_script, "w", encoding="utf-8") as main_script_fd:
-                planning_script = self.generate_plan_job_template(job_script)
+                planning_script = self.generate_plan_job_template(job_script, **plan_job_kwargs)
                 main_script_fd.write(planning_script)
                 if generate_only:
                     print("main qsub script was generated")
@@ -148,3 +156,5 @@ class Metarunner():
             # m = JOB_ID_RE.match(output)
             previous_id = output.strip()  # int(m.group())
         print("-------------------\n" + "".join(ids))
+
+    __call__ = run_on_meta
