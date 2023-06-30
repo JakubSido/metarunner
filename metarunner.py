@@ -105,12 +105,11 @@ class Metarunner():
 
             print("\n\n")
             if previous_id == 0:
-                cmd = f"cd {self.output_path_j}; qsub {plan_script}"
+                cmd = f"cd {output_path_j}; qsub {plan_script}"
             else:
-                cmd = f"cd {self.output_path_j}; qsub -W depend=afterany:{previous_id} {plan_script}"
+                cmd = f"cd {output_path_j}; qsub -W depend=afterany:{previous_id} {plan_script}"
 
             print("CMD: ",cmd)
-
 
             stream = os.popen(cmd)
             output = stream.read()
