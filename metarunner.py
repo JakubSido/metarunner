@@ -40,6 +40,9 @@ class Metarunner():
 
 
     def run_on_meta(self, config, in_sequence=1, generate_only=False, depend_on=None, add_seed_into_config=True):
+        print("planing job")
+        print("KERBEROS TICKETS:")
+        os.system("klist")
 
         previous_id = 0 if depend_on is None else depend_on
 
@@ -48,7 +51,7 @@ class Metarunner():
         ids = []
 
         global_random_seed = random.randint(10000, 65535)
-        random_seed = ""
+
         for j in range(in_sequence):
             now = datetime.datetime.now()
             random_seed = f"{global_random_seed}-{j}"
@@ -72,7 +75,6 @@ class Metarunner():
                 if generate_only:
                     print("script in-singularity was generated")
                     print(job_script)
-                    # print(in_singularity_script)
 
             # create main script
             with open(plan_script, "w", encoding="utf-8") as main_script_fd:
@@ -81,7 +83,6 @@ class Metarunner():
                 if generate_only:
                     print("main qsub script was generated")
                     print(plan_script, "\n")
-                    # print(main_script_content)
 
             st = os.stat(plan_script)
             os.chmod(plan_script, st.st_mode | stat.S_IEXEC)
@@ -89,35 +90,17 @@ class Metarunner():
             st = os.stat(job_script)
             os.chmod(job_script, st.st_mode | stat.S_IEXEC)
 
-            # if generate_only:
-            #     print("\n GENERATE ONLY -- NOT RUNNING")
-            #
-            #     print("for interactive run use:")
-            #     if self.singularity_container:
-            #         print(f"singularity run --nv {self.singularity_container}  {job_script}")
-            #     else:
-            #         print(f"conda activate .... and run: {job_script}")
-            #
-            #     continue
-
             print("\n\n")
             if previous_id == 0:
                 cmd = f"cd {self.output_path}; qsub {plan_script}"
-                print(cmd)
-
-                stream = os.popen(cmd)
-                output = stream.read()
-                ids.append(output)
-
             else:
                 cmd = f"cd {self.output_path}; qsub -W depend=afterany:{previous_id} {plan_script}"
-                print(cmd)
 
-                stream = os.popen(cmd)
-                output = stream.read()
-                ids.append(output)
-
+            print("CMD: ",cmd)
+            stream = os.popen(cmd)
+            output = stream.read()
+            ids.append(output)
             print(output, "depending on : ", previous_id)
-
             previous_id = output.strip()
+
         print("-------------------\n" + "".join(ids))
