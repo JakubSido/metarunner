@@ -8,12 +8,15 @@ from typing import Dict, List
 
 
 class Metarunner():
-    def __init__(self, project_dir, generate_plan_job_template, generate_run_job_template, metarunner_path):
+    def __init__(self, project_dir, generate_plan_job_template, generate_run_job_template, metarunner_path=None):
 
         if project_dir is None:
             print("project_dir is not specified ")
 
         self.project_dir = project_dir
+
+        if metarunner_path is None:
+            metarunner_path = os.path.join(project_dir, "metarunner")
 
         self.meterunner_path = metarunner_path
         self.output_path = os.path.join(metarunner_path, "outputs")
