@@ -48,11 +48,11 @@ class Metarunner():
         previous_id = 0 if depend_on is None else depend_on
 
         now = datetime.datetime.now()
-        global_random_seed = str(random.randint(10000, 65535))
-        date_time_string = now.strftime(f"%Y-%m-%d__%H-%M-%S-%f--{global_random_seed}")
+
+        date_time_string = now.strftime(f"%Y-%m-%d__%H-%M-%S-%f")
 
         if add_seed_into_config:
-            config["metarunner_seed"] = global_random_seed
+            config["metarunner_seed"] = date_time_string
 
         script_paths = os.path.join(self.meterunner_path,date_time_string, "scripts")
         output_path = os.path.join(self.meterunner_path, date_time_string, "outputs")
