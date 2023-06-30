@@ -51,7 +51,8 @@ class Metarunner():
         global_random_seed = str(random.randint(10000, 65535))
         date_time_string = now.strftime(f"%Y-%m-%d__%H-%M-%S-%f--{global_random_seed}")
 
-
+        if add_seed_into_config:
+            config["metarunner_seed"] = global_random_seed
 
         script_paths = os.path.join(self.meterunner_path,date_time_string, "scripts")
         output_path = os.path.join(self.meterunner_path, date_time_string, "outputs")
@@ -61,10 +62,6 @@ class Metarunner():
         ids = []
 
         for j in range(in_sequence):
-            random_seed = f"{date_time_string}-{j}"
-
-            if add_seed_into_config:
-                config["metarunner_seed"] = random_seed
 
             job_sript_name = f"job-script_{j}.sh"
             plan_script_name = f"plan-script_{j}.sh"
