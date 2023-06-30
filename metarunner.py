@@ -8,16 +8,16 @@ from typing import Dict, List
 
 
 class Metarunner():
-    def __init__(self, project_dir, generate_plan_job_template, generate_run_job_template, meterunner_path):
+    def __init__(self, project_dir, generate_plan_job_template, generate_run_job_template, metarunner_path):
 
         if project_dir is None:
             print("project_dir is not specified ")
 
         self.project_dir = project_dir
 
-        self.meterunner_path = meterunner_path
-        self.output_path = os.path.join(meterunner_path, "outputs")
-        self.script_paths = os.path.join(meterunner_path, "scripts")
+        self.meterunner_path = metarunner_path
+        self.output_path = os.path.join(metarunner_path, "outputs")
+        self.script_paths = os.path.join(metarunner_path, "scripts")
 
         self.generate_plan_job_template = generate_plan_job_template
         self.generate_run_job_template = generate_run_job_template
@@ -90,6 +90,9 @@ class Metarunner():
             st = os.stat(job_script)
             os.chmod(job_script, st.st_mode | stat.S_IEXEC)
 
+            if generate_only:
+                continue
+
             print("\n\n")
             if previous_id == 0:
                 cmd = f"cd {self.output_path}; qsub {plan_script}"
@@ -97,6 +100,8 @@ class Metarunner():
                 cmd = f"cd {self.output_path}; qsub -W depend=afterany:{previous_id} {plan_script}"
 
             print("CMD: ",cmd)
+
+
             stream = os.popen(cmd)
             output = stream.read()
             ids.append(output)

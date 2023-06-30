@@ -2,11 +2,11 @@ from setuptools import setup, find_packages
 
 setup(
     name='metarunner',
-    version='0.1.2',
+    version='0.1.3',
     packages=[''],
     license='MIT',
     description='',
-    long_description="conda support added, metarunner_seq_num added",
+    long_description="",
     install_requires=[],
     url='',
     author='',
