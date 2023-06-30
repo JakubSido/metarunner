@@ -47,13 +47,14 @@ class Metarunner():
         os.makedirs(self.output_path, exist_ok=True)
         ids = []
 
-        random_seed = random.randint(10000, 65535)
-        if add_seed_into_config:
-            config["metarunner_seed"] = random_seed
+        global_random_seed = random.randint(10000, 65535)
+        random_seed = ""
         for j in range(in_sequence):
             now = datetime.datetime.now()
-
-            date_time = now.strftime(f"%Y-%m-%d__%H-%M-%S-%f--{random_seed}--{j}")
+            random_seed = f"{global_random_seed}-{j}"
+            date_time = now.strftime(f"%Y-%m-%d__%H-%M-%S-%f--{random_seed}")
+            if add_seed_into_config:
+                config["metarunner_seed"] = random_seed
 
             job_sript_name = f"job-script_{date_time}.sh"
             plan_script_name = f"plan-script_{date_time}.sh"
