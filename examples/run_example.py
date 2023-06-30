@@ -43,10 +43,7 @@ if __name__ == '__main__':
                 """
 
 
-    mr = Metarunner(generate_plan_job, generate_run_job,
-                    f"{PROJECT_DIR}/metarunner",
-                    project_dir=PROJECT_DIR, python_script=MAIN_SCRIPT
-                    )
+    mr = Metarunner(PROJECT_DIR, generate_plan_job, generate_run_job)
     map_hp_vals = {
         "a": [
             5,
@@ -64,9 +61,7 @@ if __name__ == '__main__':
     input("Press Enter to continue...")
     for config in confs:
         print("planing")
-        # pass
-        mr.run_on_meta(config, generate_only=True)
+        # mr.run_on_meta(config, generate_only=True)
         mr.run_on_meta(config)
         break
 
-    # mr.dry_run(config)

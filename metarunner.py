@@ -19,8 +19,6 @@ class Metarunner():
             metarunner_path = os.path.join(project_dir, "metarunner")
 
         self.meterunner_path = metarunner_path
-        self.output_path = os.path.join(metarunner_path, "outputs")
-        self.script_paths = os.path.join(metarunner_path, "scripts")
 
         self.generate_plan_job_template = generate_plan_job_template
         self.generate_run_job_template = generate_run_job_template
@@ -49,24 +47,30 @@ class Metarunner():
 
         previous_id = 0 if depend_on is None else depend_on
 
-        os.makedirs(self.script_paths, exist_ok=True)
-        os.makedirs(self.output_path, exist_ok=True)
+        now = datetime.datetime.now()
+        global_random_seed = str(random.randint(10000, 65535))
+        date_time_string = now.strftime(f"%Y-%m-%d__%H-%M-%S-%f--{global_random_seed}")
+
+
+
+        script_paths = os.path.join(self.meterunner_path,date_time_string, "scripts")
+        output_path = os.path.join(self.meterunner_path, date_time_string, "outputs")
+
+        os.makedirs(script_paths, exist_ok=True)
+        os.makedirs(output_path, exist_ok=True)
         ids = []
 
-        global_random_seed = random.randint(10000, 65535)
-
         for j in range(in_sequence):
-            now = datetime.datetime.now()
-            random_seed = f"{global_random_seed}-{j}"
-            date_time = now.strftime(f"%Y-%m-%d__%H-%M-%S-%f--{random_seed}")
+            random_seed = f"{date_time_string}-{j}"
+
             if add_seed_into_config:
                 config["metarunner_seed"] = random_seed
 
-            job_sript_name = f"job-script_{date_time}.sh"
-            plan_script_name = f"plan-script_{date_time}.sh"
+            job_sript_name = f"job-script_{j}.sh"
+            plan_script_name = f"plan-script_{j}.sh"
 
-            job_script = os.path.join(self.script_paths, job_sript_name)
-            plan_script = os.path.join(self.script_paths, plan_script_name)
+            job_script = os.path.join(script_paths, job_sript_name)
+            plan_script = os.path.join(script_paths, plan_script_name)
 
             if in_sequence > 1:
                 config["metarunner_seq_num"] = in_sequence
@@ -96,11 +100,14 @@ class Metarunner():
             if generate_only:
                 continue
 
+            output_path_j = os.path.join(output_path, f"{j}")
+            os.makedirs(output_path_j, exist_ok=True)
+
             print("\n\n")
             if previous_id == 0:
-                cmd = f"cd {self.output_path}; qsub {plan_script}"
+                cmd = f"cd {self.output_path_j}; qsub {plan_script}"
             else:
-                cmd = f"cd {self.output_path}; qsub -W depend=afterany:{previous_id} {plan_script}"
+                cmd = f"cd {self.output_path_j}; qsub -W depend=afterany:{previous_id} {plan_script}"
 
             print("CMD: ",cmd)
 
