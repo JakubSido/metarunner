@@ -40,7 +40,7 @@ class Metarunner():
         return ret
 
 
-    def run_on_meta(self, config, in_sequence=1, generate_only=False, depend_on=None, add_seed_into_config=True):
+    def run_on_meta(self, config, in_sequence=1, generate_only=False, depend_on=None, add_metarunner_into_config=True):
         print("planing job")
         print("KERBEROS TICKETS:")
         os.system("klist")
@@ -51,7 +51,7 @@ class Metarunner():
 
         date_time_string = now.strftime(f"%Y-%m-%d__%H-%M-%S-%f")
 
-        if add_seed_into_config:
+        if add_metarunner_into_config:
             config["metarunner_seed"] = date_time_string
 
         script_paths = os.path.join(self.meterunner_path,date_time_string, "scripts")
@@ -70,7 +70,8 @@ class Metarunner():
             plan_script = os.path.join(script_paths, plan_script_name)
 
             if in_sequence > 1:
-                config["metarunner_seq_num"] = in_sequence
+                if add_metarunner_into_config:
+                    config["metarunner_seq_num"] = in_sequence
 
             # create in-singularity script
             runinng_script = self.generate_run_job_template(config)
