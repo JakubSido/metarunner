@@ -40,7 +40,7 @@ class Metarunner():
         return ret
 
 
-    def run_on_meta(self, config, in_sequence=1, generate_only=False, depend_on=None, add_metarunner_into_config=True):
+    def run_on_meta(self, config, in_sequence=1, generate_only=False, depend_on=None, add_metarunner_into_config=False):
         print("planing job")
         print("KERBEROS TICKETS:")
         os.system("klist")
