@@ -24,18 +24,22 @@ class Metarunner():
         self.generate_run_job_template = generate_run_job_template
 
     @classmethod
-    def grid_config(cls, map_hp_vals: Dict[str, List]) -> List[Dict]:
+    def grid_config(cls, map_hp_vals: Dict[str, List], base_config :Dict [str,str] | None = None) -> List[Dict]:
         """
         Generate cartesian product of all hyper-parameters
 
         :param map_hp_vals: grid to generate cartesian product from
         :return: list of dicts -- all possible combinations of hyper-parameters
         """
+        if base_config is None:
+            base_config = dict()
+
         lists = map_hp_vals.values()
         keys = map_hp_vals.keys()
         ret = []
         for config_list_instance in itertools.product(*lists):
-            config_instance = {k: v for k, v in zip(keys, config_list_instance)}
+            config_instance = base_config.copy()
+            config_instance.update({k: v for k, v in zip(keys, config_list_instance)})
             ret.append(config_instance)
         return ret
 
