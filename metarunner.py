@@ -61,8 +61,9 @@ class Metarunner():
         if add_metarunner_into_config:
             config["metarunner_seed"] = date_time_string
         
-        script_paths = os.path.join(self.meterunner_path,date_string,time_string, "scripts")
-        output_path = os.path.join(self.meterunner_path,date_string,time_string, "outputs")
+        plan_path = os.path.join(self.meterunner_path,date_string,time_string)
+        script_paths =  os.path.join(plan_path, "scripts")
+        output_path = os.path.join(plan_path, "outputs")
 
         os.makedirs(script_paths, exist_ok=True)
         os.makedirs(output_path, exist_ok=True)
@@ -120,7 +121,7 @@ class Metarunner():
             output = stream.read()
             ids.append(output)
             meta_name = f"{j}_{output}"
-            Path(os.path.join(script_paths,meta_name)).touch()
+            Path(os.path.join(plan_path,meta_name)).touch()
             print(output, "depending on : ", previous_id)
             previous_id = output.strip()
 
