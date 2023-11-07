@@ -1,6 +1,7 @@
 import datetime
 import itertools
 import os
+from pathlib import Path
 import stat
 import random
 
@@ -53,13 +54,15 @@ class Metarunner():
 
         now = datetime.datetime.now()
 
+        date_string = now.strftime(f"%Y-%m-%d")
+        time_string = now.strftime(f"%H-%M-%S-%f")
         date_time_string = now.strftime(f"%Y-%m-%d__%H-%M-%S-%f")
 
         if add_metarunner_into_config:
             config["metarunner_seed"] = date_time_string
 
-        script_paths = os.path.join(self.meterunner_path,date_time_string, "scripts")
-        output_path = os.path.join(self.meterunner_path, date_time_string, "outputs")
+        script_paths = os.path.join(self.meterunner_path,date_string,time_string, "scripts")
+        output_path = os.path.join(self.meterunner_path,date_string,time_string, "outputs")
 
         os.makedirs(script_paths, exist_ok=True)
         os.makedirs(output_path, exist_ok=True)
@@ -116,6 +119,7 @@ class Metarunner():
             stream = os.popen(cmd)
             output = stream.read()
             ids.append(output)
+            Path(os.path.join(output_path,output)).touch()
             print(output, "depending on : ", previous_id)
             previous_id = output.strip()
 
