@@ -60,7 +60,7 @@ class Metarunner():
 
         if add_metarunner_into_config:
             config["metarunner_seed"] = date_time_string
-
+        
         script_paths = os.path.join(self.meterunner_path,date_string,time_string, "scripts")
         output_path = os.path.join(self.meterunner_path,date_string,time_string, "outputs")
 
@@ -70,9 +70,9 @@ class Metarunner():
 
         for j in range(in_sequence):
 
-            job_sript_name = f"job-script_{j}.sh"
-            plan_script_name = f"plan-script_{j}.sh"
-
+            job_sript_name = f"{j}_job-script.sh"
+            plan_script_name = f"{j}_plan-script.sh"
+            
             job_script = os.path.join(script_paths, job_sript_name)
             plan_script = os.path.join(script_paths, plan_script_name)
 
@@ -119,7 +119,8 @@ class Metarunner():
             stream = os.popen(cmd)
             output = stream.read()
             ids.append(output)
-            Path(os.path.join(output_path,output)).touch()
+            meta_name = f"{j}_{output}"
+            Path(os.path.join(script_paths,meta_name)).touch()
             print(output, "depending on : ", previous_id)
             previous_id = output.strip()
 
