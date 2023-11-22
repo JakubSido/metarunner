@@ -45,7 +45,7 @@ class Metarunner():
         return ret
 
 
-    def run_on_meta(self, config, in_sequence=1, generate_only=False, depend_on=None, add_metarunner_into_config=False):
+    def run_on_meta(self, config, in_sequence=1, generate_only=False, depend_on=None, add_run_guid=False, add_run_seq_num=False):
         print("planing job")
         print("KERBEROS TICKETS:")
         os.system("klist")
@@ -58,7 +58,7 @@ class Metarunner():
         time_string = now.strftime(f"%H-%M-%S-%f")
         date_time_string = now.strftime(f"%Y-%m-%d__%H-%M-%S-%f")
 
-        if add_metarunner_into_config:
+        if add_run_guid:
             config["metarunner_seed"] = date_time_string
         
         plan_path = os.path.join(self.meterunner_path,date_string,time_string)
@@ -78,7 +78,7 @@ class Metarunner():
             plan_script = os.path.join(script_paths, plan_script_name)
 
             if in_sequence > 1:
-                if add_metarunner_into_config:
+                if add_run_seq_num:
                     config["metarunner_seq_num"] = in_sequence
 
             # create in-singularity script
@@ -91,7 +91,7 @@ class Metarunner():
 
             # create main script
             with open(plan_script, "w", encoding="utf-8") as main_script_fd:
-                planning_script = self.generate_plan_job_template(job_script)
+                planning_script = self.generate_plan_job_template(job_script,date_time_string,j)
                 main_script_fd.write(planning_script)
                 if generate_only:
                     print("main qsub script was generated")
