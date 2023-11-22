@@ -59,7 +59,7 @@ class Metarunner():
         date_time_string = now.strftime(f"%Y-%m-%d__%H-%M-%S-%f")
 
         if add_run_guid:
-            config["metarunner_seed"] = date_time_string
+            config["metarunner_guid"] = date_time_string
         
         plan_path = os.path.join(self.meterunner_path,date_string,time_string)
         script_paths =  os.path.join(plan_path, "scripts")
@@ -79,7 +79,7 @@ class Metarunner():
 
             if in_sequence > 1:
                 if add_run_seq_num:
-                    config["metarunner_seq_num"] = in_sequence
+                    config["metarunner_seqid"] = in_sequence
 
             # create in-singularity script
             runinng_script = self.generate_run_job_template(config)
