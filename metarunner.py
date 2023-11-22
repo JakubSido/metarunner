@@ -63,7 +63,7 @@ class Metarunner():
         time_string = now.strftime(f"%H-%M-%S-%f")
         date_time_string = now.strftime(f"%Y-%m-%d__%H-%M-%S-%f")
 
-        if add_run_guid:
+        if add_run_guid and "metarunner_guid" not in config:
             config["metarunner_guid"] = date_time_string
         
         plan_path = os.path.join(self.meterunner_path,date_string,time_string)
@@ -116,9 +116,9 @@ class Metarunner():
 
             print("\n\n")
             if previous_id == 0:
-                cmd = f"cd {output_path_j}; qsub {plan_script}"
+                cmd = f"cd {output_path_j}; qsub -e err.txt -o out.txt {plan_script}"
             else:
-                cmd = f"cd {output_path_j}; qsub -W depend=afterany:{previous_id} {plan_script}"
+                cmd = f"cd {output_path_j}; qsub -e err.txt -o out.txt -W depend=afterany:{previous_id} {plan_script}"
 
             print("CMD: ",cmd)
 
