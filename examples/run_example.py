@@ -1,7 +1,7 @@
 import itertools
 import socket
 import sys
-from metarunner import Metarunner
+from metarunner import Metarunner, MetarunnerArgs
 import os
 
 print("KERBEROS TICKETS: ", os.system("klist"))
@@ -14,14 +14,14 @@ if __name__ == '__main__':
     # qsub -I -l walltime=24:0:0 -q gpu@meta-pbs.metacentrum.cz -l select=1:ncpus=1:ngpus=1:mem=40000mb:scratch_local=40000mb:cl_adan=True:mpiprocs=1:ompthreads=1
     # singularity run --nv /cvmfs/singularity.metacentrum.cz/NGC/PyTorch\:21.03-py3.SIF  /storage/brno1-cerit/home/sidoj/phd_augmenter
 
-    def generate_plan_job(job_script):
+    def generate_plan_job(job_script,run_guid, run_seq_id):
         return f"""#!/bin/bash
                 #PBS -q gpu@cerit-pbs.cerit-sc.cz
                 #P-BS -q gpu@meta-pbs.metacentrum.cz
                 #PBS -l walltime=0:59:0
                 #PBS -l select=1:ncpus=1:ngpus=1:mem=40000mb:scratch_local=40000mb:cl_zia=True
                 #P-BS -l select=1:ncpus=1:ngpus=1:mem=40000mb:scratch_local=40000mb:cl_galdor=True
-                #PBS -N augmenter
+                #PBS -N augmenter-{run_guid}-{run_seq_id}
 
                 /bin/bash {job_script}
                 """

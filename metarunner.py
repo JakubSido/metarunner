@@ -10,8 +10,8 @@ from typing import Dict, List
 
 @dataclass
 class MetarunnerArgs:
-    metarunner_guid :str
-    metarunner_seqid :int
+    metarunner_guid :str = ""
+    metarunner_seqid :int = 0
 
 class Metarunner():
     def __init__(self, project_dir, generate_plan_job_template, generate_run_job_template, metarunner_path=None):
