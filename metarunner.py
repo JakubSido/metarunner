@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import datetime
 import itertools
 import os
@@ -7,6 +8,10 @@ import random
 
 from typing import Dict, List
 
+@dataclass
+class MetarunnerArgs:
+    metarunner_guid :str
+    metarunner_seqid :int
 
 class Metarunner():
     def __init__(self, project_dir, generate_plan_job_template, generate_run_job_template, metarunner_path=None):
