@@ -12,9 +12,13 @@ from typing import Dict, List
 class MetarunnerArgs:
     metarunner_guid :str = "0-0-0-0"
     metarunner_seqid :int = 0
-
-def get_id_of_this_job():
-    return os.environ["SCRATCH"].split("job_")[-1]
+    
+    @property
+    def job_id(this):
+        try:
+            return os.environ["SCRATCH"].split("job_")[-1]
+        except:
+            return None
 
 
 class Metarunner():
