@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import datetime
 import itertools
 import os
@@ -12,14 +12,12 @@ from typing import Dict, List
 class MetarunnerArgs:
     metarunner_guid :str = "0-0-0-0"
     metarunner_seqid :int = 0
-    
-    @property
-    def job_id(this):
+    job_id: str = ""
+    def __post_init__(self):
         try:
-            return os.environ["SCRATCH"].split("job_")[-1]
+            self.job_id = os.environ["SCRATCH"].split("job_")[-1]
         except:
-            return None
-
+            self.job_id = "asd"
 
 class Metarunner():
     def __init__(self, project_dir, generate_plan_job_template, generate_run_job_template, metarunner_path=None):
