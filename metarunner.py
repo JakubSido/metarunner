@@ -10,7 +10,7 @@ from typing import Dict, List
 
 @dataclass
 class MetarunnerArgs:
-    metarunner_guid :str = "0-0-0-0"
+    metarunner_guid : None|str = None
     metarunner_seqid :int = 0
     job_id: str = ""
     def __post_init__(self):
