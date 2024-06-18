@@ -27,7 +27,7 @@ if __name__ == '__main__':
                 """
 
 
-    def generate_run_job(named_args):
+    def generate_run_job(named_args, data_dir, scripts_dir, outputs_dir):
         named_params = " ".join(f"--{k} {v}" for k, v in named_args.items())
         return f"""#!/bin/bash
                 module add conda-modules

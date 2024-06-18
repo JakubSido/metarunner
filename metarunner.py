@@ -8,20 +8,28 @@ import random
 
 from typing import Dict, List
 
+
 @dataclass
 class MetarunnerArgs:
-    metarunner_guid : None|str = None
-    metarunner_seqid :int = 0
+    metarunner_guid: None | str = None
+    metarunner_seqid: int = 0
     job_id: str = ""
+
     def __post_init__(self):
         try:
             self.job_id = os.environ["SCRATCH"].split("job_")[-1]
         except:
             self.job_id = "asd"
 
-class Metarunner():
-    def __init__(self, project_dir, generate_plan_job_template, generate_run_job_template, metarunner_path=None):
 
+class Metarunner:
+    def __init__(
+        self,
+        project_dir,
+        generate_plan_job_template,
+        generate_run_job_template,
+        metarunner_path=None,
+    ):
         if project_dir is None:
             print("project_dir is not specified ")
 
@@ -36,7 +44,9 @@ class Metarunner():
         self.generate_run_job_template = generate_run_job_template
 
     @classmethod
-    def grid_config(cls, map_hp_vals: Dict[str, List], base_config :Dict [str,str] | None = None) -> List[Dict]:
+    def grid_config(
+        cls, map_hp_vals: Dict[str, List], base_config: Dict[str, str] | None = None
+    ) -> List[Dict]:
         """
         Generate cartesian product of all hyper-parameters
 
@@ -55,8 +65,15 @@ class Metarunner():
             ret.append(config_instance)
         return ret
 
-
-    def run_on_meta(self, config, in_sequence=1, generate_only=False, depend_on=None, add_run_guid=False, add_run_seq_num=False):
+    def run_on_meta(
+        self,
+        config,
+        in_sequence=1,
+        generate_only=False,
+        depend_on=None,
+        add_run_guid=False,
+        add_run_seq_num=False,
+    ):
         print("planing job")
         print("KERBEROS TICKETS:")
         os.system("klist")
@@ -71,20 +88,20 @@ class Metarunner():
 
         if add_run_guid and "metarunner_guid" not in config:
             config["metarunner_guid"] = date_time_string
-        
-        plan_path = os.path.join(self.meterunner_path,date_string,time_string)
-        script_paths =  os.path.join(plan_path, "scripts")
+
+        plan_path = os.path.join(self.meterunner_path, date_string, time_string)
+        script_paths = os.path.join(plan_path, "scripts")
         output_path = os.path.join(plan_path, "outputs")
+        data_path = os.path.join(plan_path, "data")
 
         os.makedirs(script_paths, exist_ok=True)
         os.makedirs(output_path, exist_ok=True)
         ids = []
 
         for j in range(in_sequence):
-
             job_sript_name = f"{j}_job-script.sh"
             plan_script_name = f"{j}_plan-script.sh"
-            
+
             job_script = os.path.join(script_paths, job_sript_name)
             plan_script = os.path.join(script_paths, plan_script_name)
 
@@ -93,7 +110,9 @@ class Metarunner():
                     config["metarunner_seqid"] = in_sequence
 
             # create in-singularity script
-            runinng_script = self.generate_run_job_template(config)
+            runinng_script = self.generate_run_job_template(
+                config, data_path, script_paths, output_path
+            )
             with open(job_script, "w", encoding="utf-8") as in_singularity_fd:
                 in_singularity_fd.write(runinng_script)
                 if generate_only:
@@ -102,7 +121,9 @@ class Metarunner():
 
             # create main script
             with open(plan_script, "w", encoding="utf-8") as main_script_fd:
-                planning_script = self.generate_plan_job_template(job_script,date_time_string,j)
+                planning_script = self.generate_plan_job_template(
+                    job_script, date_time_string, j
+                )
                 main_script_fd.write(planning_script)
                 if generate_only:
                     print("main qsub script was generated")
@@ -126,13 +147,13 @@ class Metarunner():
             else:
                 cmd = f"cd {output_path_j}; qsub -e err.txt -o out.txt -W depend=afterany:{previous_id} {plan_script}"
 
-            print("CMD: ",cmd)
+            print("CMD: ", cmd)
 
             stream = os.popen(cmd)
             output = stream.read()
             ids.append(output)
             meta_name = f"{j}_{output}"
-            Path(os.path.join(plan_path,meta_name)).touch()
+            Path(os.path.join(plan_path, meta_name)).touch()
             print(output, "depending on : ", previous_id)
             previous_id = output.strip()
 
