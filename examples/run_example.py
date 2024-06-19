@@ -14,7 +14,7 @@ if __name__ == '__main__':
     # qsub -I -l walltime=24:0:0 -q gpu@meta-pbs.metacentrum.cz -l select=1:ncpus=1:ngpus=1:mem=40000mb:scratch_local=40000mb:cl_adan=True:mpiprocs=1:ompthreads=1
     # singularity run --nv /cvmfs/singularity.metacentrum.cz/NGC/PyTorch\:21.03-py3.SIF  /storage/brno1-cerit/home/sidoj/phd_augmenter
 
-    def generate_plan_job(job_script,run_guid, run_seq_id):
+    def generate_plan_job(job_script,run_guid, run_seq_id, data_path):
         return f"""#!/bin/bash
                 #PBS -q gpu@cerit-pbs.cerit-sc.cz
                 #P-BS -q gpu@meta-pbs.metacentrum.cz
@@ -27,7 +27,7 @@ if __name__ == '__main__':
                 """
 
 
-    def generate_run_job(named_args, data_dir, scripts_dir, outputs_dir):
+    def generate_run_job(named_args):
         named_params = " ".join(f"--{k} {v}" for k, v in named_args.items())
         return f"""#!/bin/bash
                 module add conda-modules

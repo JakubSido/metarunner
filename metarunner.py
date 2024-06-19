@@ -111,7 +111,7 @@ class Metarunner:
 
             # create in-singularity script
             runinng_script = self.generate_run_job_template(
-                config, data_path, script_paths, output_path
+                config, data_path
             )
             with open(job_script, "w", encoding="utf-8") as in_singularity_fd:
                 in_singularity_fd.write(runinng_script)
@@ -122,7 +122,7 @@ class Metarunner:
             # create main script
             with open(plan_script, "w", encoding="utf-8") as main_script_fd:
                 planning_script = self.generate_plan_job_template(
-                    job_script, date_time_string, j
+                    job_script, date_time_string, j, data_path
                 )
                 main_script_fd.write(planning_script)
                 if generate_only:
