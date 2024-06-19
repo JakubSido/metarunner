@@ -111,7 +111,7 @@ class Metarunner:
 
             # create in-singularity script
             runinng_script = self.generate_run_job_template(
-                config, data_path
+                config 
             )
             with open(job_script, "w", encoding="utf-8") as in_singularity_fd:
                 in_singularity_fd.write(runinng_script)
